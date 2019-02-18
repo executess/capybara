@@ -28,12 +28,26 @@ public class MainPages {
         getElement(locator, waitSec, errMsg);
     }
 
-    protected void waitForUrlToContainString(String URL, int waitSec, String errMsg) {
-        isPageload(waitSec, errMsg);
-        String currentUrl = driver.getCurrentUrl();
-        boolean result = currentUrl.contains(URL);
-        Assert.assertTrue(result, errMsg);
+//    protected void waitForUrlToContainString_old(String URL, int waitSec, String errMsg) {
+//        isPageload(waitSec, errMsg);
+//        String currentUrl = driver.getCurrentUrl();
+//        boolean result = currentUrl.contains(URL);
+//        Assert.assertTrue(result, errMsg);
+//    }
+
+    protected void waitForUrlToContainString(String URL,int waitSec,String errMsg) {
+        final WebDriverWait wait = new WebDriverWait(driver, waitSec);
+        try{
+            wait.until(new ExpectedCondition<Boolean>() {
+                public Boolean apply(WebDriver driver) {
+                    return driver.getCurrentUrl().contains(URL);
+                }
+            });
+        }catch (TimeoutException timeout){
+            Assert.assertEquals(driver.getCurrentUrl().toLowerCase(),URL.toLowerCase(),errMsg + " | " + timeout.getMessage());
+        }
     }
+
 
     // interact with elements
 
@@ -51,7 +65,6 @@ public class MainPages {
         }
 
     }
-
     protected void clickOnElement(By locator, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
         WebElement element = getElement(locator, waitSec, errMsg);
@@ -180,6 +193,27 @@ public class MainPages {
 
         Assert.assertTrue(containText.contains(text.toLowerCase()));
     }
+
+    protected void waitForTextEqual(final By locator, final String text,final int waitSec, final String errMsg) {
+        final WebDriverWait wait = new WebDriverWait(driver, waitSec);
+        try{
+            wait.until(new ExpectedCondition<Boolean>() {
+                public Boolean apply(WebDriver driver) {
+                    WebElement element = getElement(locator, waitSec, "element did not display" + waitSec + " seconds");
+                    String element_text = element.getText();
+                    if (element_text.equalsIgnoreCase(text)){
+                        return true;
+                    }else {
+                        return false;
+                    }
+                }
+            });
+        }catch (TimeoutException timeout){
+            String element_text = getElement(locator, waitSec, "element did not display" + waitSec + " seconds").getText();
+            Assert.assertEquals(element_text.toLowerCase(),text.toLowerCase(),errMsg + " | " + timeout.getMessage());
+        }
+    }
+
 
     // Other functions
 
