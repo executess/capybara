@@ -12,8 +12,10 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
 public class MainPages {
 
     protected MainTest mainTest;
@@ -35,16 +37,16 @@ public class MainPages {
 //        Assert.assertTrue(result, errMsg);
 //    }
 
-    protected void waitForUrlToContainString(String URL,int waitSec,String errMsg) {
+    protected void waitForUrlToContainString(String URL, int waitSec, String errMsg) {
         final WebDriverWait wait = new WebDriverWait(driver, waitSec);
-        try{
+        try {
             wait.until(new ExpectedCondition<Boolean>() {
                 public Boolean apply(WebDriver driver) {
                     return driver.getCurrentUrl().contains(URL);
                 }
             });
-        }catch (TimeoutException timeout){
-            Assert.assertEquals(driver.getCurrentUrl().toLowerCase(),URL.toLowerCase(),errMsg + " | " + timeout.getMessage());
+        } catch (TimeoutException timeout) {
+            Assert.assertEquals(driver.getCurrentUrl().toLowerCase(), URL.toLowerCase(), errMsg + " | " + timeout.getMessage());
         }
     }
 
@@ -65,6 +67,7 @@ public class MainPages {
         }
 
     }
+
     protected void clickOnElement(By locator, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
         WebElement element = getElement(locator, waitSec, errMsg);
@@ -85,6 +88,7 @@ public class MainPages {
 
         }
     }
+
     protected void isDisplayed(By locator, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
         try {
@@ -107,23 +111,18 @@ public class MainPages {
         Assert.assertTrue(driver.findElement(locator).isDisplayed(), errMsg);
 
 
-
-
-
 //        WebDriverWait _wait = new WebDriverWait(driver, waitSec);
         driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
-        WebDriverWait _wait = new WebDriverWait(driver, waitSec,300);
+        WebDriverWait _wait = new WebDriverWait(driver, waitSec, 300);
         ExpectedCondition elementIsDisplayed = new ExpectedCondition<Boolean>() {
             public Boolean apply(WebDriver arg0) {
                 try {
                     driver.findElement(locator).isDisplayed();
                     return false;
-                }
-                catch (NoSuchElementException e ) {
+                } catch (NoSuchElementException e) {
 //                    System.err.println("locator not displayed");
                     return true;
-                }
-                catch (StaleElementReferenceException f) {
+                } catch (StaleElementReferenceException f) {
 //                    System.err.println("locator not displayed");
                     return true;
                 }
@@ -143,6 +142,7 @@ public class MainPages {
 
 
     }
+
     protected void isNotVisibleAlready(final By locator, int delaySeconds, String errorMassage) {
         driver.manage().timeouts().implicitlyWait(delaySeconds, TimeUnit.SECONDS);
 
@@ -160,57 +160,96 @@ public class MainPages {
     }
 
 
-    protected void clearFieldAndFillItWithText(By locator, String text, int waitSec, String errMsg){
+    protected void clearFieldAndFillItWithText(By locator, String text, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
-        WebElement element = getElement(locator,waitSec,errMsg);
+        WebElement element = getElement(locator, waitSec, errMsg);
         element.clear();
         element.sendKeys(text);
     }
 
-    protected void moveTo(By locator, int waitSec, String errMsg){
+    protected void moveTo(By locator, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
-        WebElement element = getElement(locator,waitSec,errMsg);
+        WebElement element = getElement(locator, waitSec, errMsg);
         Actions action = new Actions(driver);
 
         action.moveToElement(element).perform();
     }
 
-    protected void selectedByIndex(By locator,int index, int waitSec, String errMsg){
+    protected void selectedByIndex(By locator, int index, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
-        Select select = new Select(getElement(locator,waitSec,errMsg));
+        Select select = new Select(getElement(locator, waitSec, errMsg));
         select.selectByIndex(index);
     }
-    protected void selectedByText(By locator,String text, int waitSec, String errMsg){
+
+    protected void selectedByText(By locator, String text, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
-        Select select = new Select(getElement(locator,waitSec,errMsg));
+        Select select = new Select(getElement(locator, waitSec, errMsg));
         select.selectByVisibleText(text);
     }
 
-    protected void isTextContains(By locator,String text, int waitSec, String errMsg){
+    protected void isTextContains(By locator, String text, int waitSec, String errMsg) {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
-        WebElement element = getElement(locator,waitSec,errMsg);
+        WebElement element = getElement(locator, waitSec, errMsg);
         String containText = element.getText().toLowerCase();
 
         Assert.assertTrue(containText.contains(text.toLowerCase()));
     }
 
-    protected void waitForTextEqual(final By locator, final String text,final int waitSec, final String errMsg) {
+    protected void waitForTextEqual(final By locator, final String text, final int waitSec, final String errMsg) {
         final WebDriverWait wait = new WebDriverWait(driver, waitSec);
-        try{
+        try {
             wait.until(new ExpectedCondition<Boolean>() {
                 public Boolean apply(WebDriver driver) {
                     WebElement element = getElement(locator, waitSec, "element did not display" + waitSec + " seconds");
                     String element_text = element.getText();
-                    if (element_text.equalsIgnoreCase(text)){
+                    if (element_text.equalsIgnoreCase(text)) {
                         return true;
-                    }else {
+                    } else {
                         return false;
                     }
                 }
             });
-        }catch (TimeoutException timeout){
+        } catch (TimeoutException timeout) {
             String element_text = getElement(locator, waitSec, "element did not display" + waitSec + " seconds").getText();
-            Assert.assertEquals(element_text.toLowerCase(),text.toLowerCase(),errMsg + " | " + timeout.getMessage());
+            Assert.assertEquals(element_text.toLowerCase(), text.toLowerCase(), errMsg + " | " + timeout.getMessage());
+        }
+    }
+
+    //! with return parameter functions
+
+    protected boolean getIsDisplayed(By locator, int waitSec) {
+        driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
+        boolean isDisplayed;
+        try {
+            WebElement element = this.driver.findElement(locator);
+            isDisplayed = element.isDisplayed();
+            return isDisplayed;
+        } catch (NoSuchElementException e) {
+            isDisplayed = false;
+            return isDisplayed;
+        }finally {
+            driver.manage().timeouts().implicitlyWait(MainTest.DefaultDelay, TimeUnit.SECONDS);
+        }
+    }
+
+    protected Integer getRandomInt(int lowerBound, int upperBound) {
+        Random r = new Random();
+        int result = r.nextInt(upperBound - lowerBound) + lowerBound;
+        System.err.println("upperBound = " + upperBound + "| result = " + result);
+        return result;
+    }
+
+    protected Integer getElements_size(By locator, int waitSec, String errMsg) {
+        driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
+        try {
+            List<WebElement> elements = this.driver.findElements(locator);
+            driver.manage().timeouts().implicitlyWait(MainTest.DefaultDelay, TimeUnit.SECONDS);
+            return elements.size();
+        } catch (NoSuchElementException e) {
+            System.err.print(errMsg + " | " + e.getMessage());
+            throw new WebDriverException(errMsg);
+        } finally {
+            driver.manage().timeouts().implicitlyWait(MainTest.DefaultDelay, TimeUnit.SECONDS);
         }
     }
 
@@ -218,12 +257,12 @@ public class MainPages {
     // Other functions
 
     protected static Integer StrToInt(
-            final CharSequence input){
+            final CharSequence input) {
         final StringBuilder sb = new StringBuilder(
-                input.length() );
-        for(int i = 0; i < input.length(); i++){
+                input.length());
+        for (int i = 0; i < input.length(); i++) {
             final char c = input.charAt(i);
-            if(c > 47 && c < 58){
+            if (c > 47 && c < 58) {
                 sb.append(c);
             }
         }
