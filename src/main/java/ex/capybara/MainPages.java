@@ -227,14 +227,36 @@ public class MainPages {
         } catch (NoSuchElementException e) {
             isDisplayed = false;
             return isDisplayed;
-        }finally {
+        } finally {
             driver.manage().timeouts().implicitlyWait(MainTest.DefaultDelay, TimeUnit.SECONDS);
         }
     }
 
+    protected boolean getIsElementExist(By locator, int waitSec) {
+        driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
+        boolean isElementExist = false;
+        try {
+            WebElement element = this.driver.findElement(locator);
+            if (element != null)
+                isElementExist = true;
+        } catch (NoSuchElementException e) {
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            isElementExist = false;
+        } finally {
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            return isElementExist;
+        }
+
+    }
+
     protected Integer getRandomInt(int lowerBound, int upperBound) {
         Random r = new Random();
-        int result = r.nextInt(upperBound - lowerBound) + lowerBound;
+        int result;
+        if (lowerBound != upperBound) {
+            result = r.nextInt(upperBound - lowerBound) + lowerBound;
+        } else {
+            result = lowerBound;
+        }
         System.err.println("upperBound = " + upperBound + "| result = " + result);
         return result;
     }
