@@ -3,10 +3,10 @@
   <groupId>ex.capybara</groupId>
   <artifactId>ex.capybara</artifactId>
   <versioning>
-    <release>1.2.1</release>
+    <release>1.2.2</release>
     <versions>
-      <version>1.2.1</version>
+      <version>1.2.2</version>
     </versions>
-    <lastUpdated>20190227075010</lastUpdated>
+    <lastUpdated>20190502132550</lastUpdated>
   </versioning>
 </metadata>
