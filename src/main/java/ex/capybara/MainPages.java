@@ -93,7 +93,10 @@ public class MainPages {
         driver.manage().timeouts().implicitlyWait(waitSec, TimeUnit.SECONDS);
         try {
             WebElement element = getElement(locator, waitSec, errMsg);
-            element.isDisplayed();
+            WebDriverWait wait = new WebDriverWait(driver, waitSec);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+
+            Assert.assertTrue(driver.findElement(locator).isDisplayed(), errMsg);
         } catch (WebDriverException e) {
             System.err.print(errMsg + " | " + e.getMessage());
             Assert.fail(errMsg + " | " + e.getMessage(), e);
