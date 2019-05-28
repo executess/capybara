@@ -13,6 +13,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testng.ITestResult;
 import org.testng.annotations.*;
 
 import java.net.MalformedURLException;
@@ -25,11 +26,12 @@ public abstract class MainTest {
     /*
      * Copyright (c) 2019. Semenoff Slava
      */
+    private static final ThreadLocal<RemoteWebDriver> drivers = new ThreadLocal<>();
     protected boolean isLocalRunning = true;
     protected String SITE_URL;
     public MainTest.Platform platform;
     protected MainTest.BrowserType browser;
-    protected static WebDriver driver;
+    protected static RemoteWebDriver driver;
     private static String driverPath = "./install/selenium//";
     protected static int DefaultDelay = 10;
 
@@ -50,10 +52,14 @@ public abstract class MainTest {
         return "http://localhost:4444/wd/hub"; // local selenium
     }
 
-    public WebDriver getDriver() {
+    public RemoteWebDriver getDriver() {
+        RemoteWebDriver driver = drivers.get();
+        if (driver == null) {
+            throw new IllegalStateException("Driver should have not been null.");
+        }
         return driver;
     }
-    public void setDriver(WebDriver driver){
+    public void setDriver(RemoteWebDriver driver){
         this.driver = driver;
     }
 
@@ -118,10 +124,11 @@ public abstract class MainTest {
         capabilities.setCapability("enableVNC", true);
         capabilities.setCapability("enableVideo", false);
 
-        this.driver = new RemoteWebDriver(
+        RemoteWebDriver driver = new RemoteWebDriver(
                 URI.create(this.getSeleniumURL()).toURL(),
                 capabilities
         );
+        drivers.set(driver);
 
     }
 
@@ -132,9 +139,11 @@ public abstract class MainTest {
             mobileEmulation.put("deviceName", "Nexus 5");
             ChromeOptions chromeOptions = new ChromeOptions();
             chromeOptions.setExperimentalOption("mobileEmulation", mobileEmulation);
-            driver = new ChromeDriver(chromeOptions);
+            RemoteWebDriver driver = new ChromeDriver(chromeOptions);
+            drivers.set(driver);
         }else {
-            driver = new ChromeDriver();
+            RemoteWebDriver driver = new ChromeDriver();
+            drivers.set(driver);
         }
     }
     private void CreateLocalDriver_Firefox(boolean isMobile){
@@ -172,15 +181,18 @@ public abstract class MainTest {
 
             System.out.println("mobile firefox started");
 //            firefoxOptions.setCapability("mobileEmulation","iPhone X");
-            driver = new FirefoxDriver(firefoxOptions);
+            RemoteWebDriver driver = new FirefoxDriver(firefoxOptions);
+            drivers.set(driver);
         }else {
-            driver = new FirefoxDriver();
+            RemoteWebDriver driver = new FirefoxDriver();
+            drivers.set(driver);
         }
 
     }
     private void CreateLocalDriver_IExplorer(boolean isMobile){
 //        CreateLocalDriver_Chrome(isMobile); // TODO temp "chrome_driver" here
-        driver = new InternetExplorerDriver();
+        RemoteWebDriver driver = new InternetExplorerDriver();
+        drivers.set(driver);
     }
 
     private void DriverCreate(boolean isLocal, boolean isMobile) throws MalformedURLException {
@@ -329,7 +341,7 @@ public abstract class MainTest {
     @BeforeMethod(
             description = "Initialize driver"
     )
-    public void DriverInitialize() {
+    public void DriverInitialize(ITestResult testResult) {
         System.err.print("browser = " + this.browser + " | ");
         System.err.print("platform = " + this.getPlatform() + " | ");
 
@@ -358,7 +370,7 @@ public abstract class MainTest {
 
     @Attachment(value = "Screenshot", type = "image/png")
     public byte[] attachment()  {
-        byte[] src = ((TakesScreenshot)driver).getScreenshotAs(OutputType.BYTES);
+        byte[] src = ((TakesScreenshot)getDriver()).getScreenshotAs(OutputType.BYTES);
         return src;
     }
     @Attachment(value = "{1}", type="text/plain")
@@ -368,10 +380,12 @@ public abstract class MainTest {
 
     @AfterMethod(description = "Add attachments environment | screenshot")
     public void AfterCall(){
+        RemoteWebDriver driver = getDriver();
         attachmentText(getEnvironment(),"Environment");
         attachment();
 //        getDriver().close(); // close only current tab
-        getDriver().quit();
+
+        driver.quit();
     }
 
 
