@@ -14,7 +14,10 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestResult;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -99,9 +102,9 @@ public abstract class MainTest {
         return site;
     }
 
-    @BeforeClass
-    @Parameters({"browser","browser_version","stages"})
-    public void setup(@Optional("chrome")BrowserType browser,@Optional("72.0")String  browser_version,@Optional("stage")Stages stages){
+//    @BeforeClass
+
+    private void setup(BrowserType browser,String  browser_version,Stages stages){
 
         this.browser = browser;
         this.browser_version = browser_version;
@@ -111,6 +114,35 @@ public abstract class MainTest {
 
     protected void Before(){
 
+    }
+    @Parameters({"browser","browser_version","stages"})
+    @BeforeMethod(description = "Initialize driver")
+    public void DriverInitialize(ITestResult testResult, @Optional("chrome")BrowserType browser,@Optional("72.0")String  browser_version,@Optional("stage")Stages stages) {
+        setup(browser,browser_version,stages);
+        System.err.print("browser = " + this.browser + " | ");
+        System.err.print("platform = " + this.getPlatform() + " | ");
+
+        try {
+            this.DriverCreate(this.isLocalRunning, this.isMobile());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        this.getDriver().manage().deleteAllCookies();
+        this.getDriver().manage().window().setPosition(new Point(0, 0));
+        this.getDriver().manage().window().setSize(new Dimension(1366, 768));
+        this.getDriver().manage().timeouts().implicitlyWait((long)DefaultDelay, TimeUnit.SECONDS);
+        this.getDriver().get(this.SITE_URL);
+        this.Before();
+    }
+
+    public boolean getElement(By locator){
+        try{
+            getDriver().findElement(locator);
+            return true;
+        } catch (NoSuchElementException e){
+            return false;
+        }
     }
 
 
@@ -338,35 +370,6 @@ public abstract class MainTest {
         return false;
     }
 */
-    @BeforeMethod(
-            description = "Initialize driver"
-    )
-    public void DriverInitialize(ITestResult testResult) {
-        System.err.print("browser = " + this.browser + " | ");
-        System.err.print("platform = " + this.getPlatform() + " | ");
-
-        try {
-            this.DriverCreate(this.isLocalRunning, this.isMobile());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        this.getDriver().manage().deleteAllCookies();
-        this.getDriver().manage().window().setPosition(new Point(0, 0));
-        this.getDriver().manage().window().setSize(new Dimension(1366, 768));
-        this.getDriver().manage().timeouts().implicitlyWait((long)DefaultDelay, TimeUnit.SECONDS);
-        this.getDriver().get(this.SITE_URL);
-        this.Before();
-    }
-
-    public boolean getElement(By locator){
-        try{
-            getDriver().findElement(locator);
-            return true;
-        } catch (NoSuchElementException e){
-            return false;
-        }
-    }
 
     @Attachment(value = "Screenshot", type = "image/png")
     public byte[] attachment()  {
