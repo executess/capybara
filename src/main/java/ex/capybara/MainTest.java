@@ -156,6 +156,10 @@ public abstract class MainTest {
         capabilities.setCapability("enableVNC", true);
         capabilities.setCapability("enableVideo", false);
 
+        capabilities.setCapability("name", getClass().getName());
+        capabilities.setCapability("sessionTimeout", "30m");
+
+
         RemoteWebDriver driver = new RemoteWebDriver(
                 URI.create(this.getSeleniumURL()).toURL(),
                 capabilities
